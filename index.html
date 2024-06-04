@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Website - Home</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Welcome to Movie Website</h1>
+        <nav>
+            <ul>
+                <li><a href="home.html">Home</a></li>
+                <li><a href="#">Genres</a></li>
+                <li><a href="#">Top Picks</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search for movies...">
+            <button onclick="searchMovies()">Search</button>
+        </div>
+    </header>
+
+   
+
+        <main>
+            <section class="movies" id="searchResults" style="display: none;">
+                <h2>Search Results</h2>
+                <div class="movie-list" id="searchMovies">
+                    <!-- Search results go here -->
+                </div>
+            </section>
+
+            <section class="movies" id="telugu">
+                <h2>Top 10 Telugu Movies</h2>
+                <div class="movie-list">
+                    <div class="movie">
+                        <img src="G:/Movie/te-1.jpg" alt="Bahubali-2">
+                        <h3>Bahubali-2</h3>
+                        <p>Description of Bahubali-2.</p>
+                    </div>
+                    <div class="movie">
+                        <img src="G:/Movie/te-2.jpg" alt="RRR">
+                        <h3>RRR</h3>
+                        <p>Description of RRR.</p>
+                    </div>
+                    <div class="movie">
+                        <img src="G:/Movie/te-3.jpg" alt="Salaar">
+                        <h3>Salaar</h3>
+                        <p>Description of Salaar.</p>
+                    </div>
+                    <div class="movie">
+                        <img src="G:/Movie/te-4.jpg" alt="Bahubali-1">
+                        <h3>Bahubali-1</h3>
+                        <p>Description of Bahubali-1.</p>
+                    </div>
+                    <div class="movie">
+                        <img src="G:/Movie/te-5.jpg" alt="Saaho">
+                        <h3>Saaho</h3>
+                        <p>Description of Saaho.</p>
+                    </div>
+                    <div class="movie">
+                        <img src="G:/Movie/te-6.jpg" alt="Pushpa-The Rise">
+                        <h3>Pushpa-The Rise</h3>
+                        <p>Description of Pushpa-The Rise.</p>
+                    </div>
+                    <div class="movie">
+                        <img src="G:/Movie/te-7.jpg" alt="Adipurush">
+                        <h3>Adipurush</h3>
+                        <p>Description of Adipurush.</p>
+                    </div>
+                    <div class="movie">
+                        <img src="G:/Movie/te-8.jpg" alt="Hanuman">
+                        <h3>Hanuman</h3>
+                        <p>Description of Hanuman.</p>
+                    </div>
+                   
+
+            <!-- More sections for other languages and genres -->
+
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Movie Website</p>
+    </footer>
+
+    <script>
+        const apiKey = '5f06f038';
+
+        function searchMovies() {
+            const searchInput = document.getElementById('searchInput').value;
+            const searchResults = document.getElementById('searchResults');
+            const searchMoviesContainer = document.getElementById('searchMovies');
+            searchMoviesContainer.innerHTML = ''; // Clear previous search results
+
+            if (searchInput) {
+                fetch(`http://www.omdbapi.com/?s=${searchInput}&apikey=${apiKey}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.Response === "True") {
+                            const movieIDs = data.Search.map(movie => movie.imdbID);
+                            return Promise.all(movieIDs.map(id => fetch(`http://www.omdbapi.com/?i=${id}&apikey=${apiKey}`).then(res => res.json())));
+                        } else {
+                            throw new Error('No results found');
+                        }
+                    })
+                    .then(movies => {
+                        movies.forEach(movie => {
+                            const movieElement = document.createElement('div');
+                            movieElement.classList.add('movie');
+                            movieElement.innerHTML = `
+                                <img src="${movie.Poster !== 'N/A' ? movie.Poster : 'path/to/default-poster.jpg'}" alt="${movie.Title}">
+                                <h3>${movie.Title}</h3>
+                                <p>Year: ${movie.Year}</p>
+                                <p>Cast: ${movie.Actors}</p>
+                                <p>Director: ${movie.Director}</p>
+                                <p>Language: ${movie.Language}</p>
+                                <p>Description: ${movie.Plot}</p>
+                            `;
+                            searchMoviesContainer.appendChild(movieElement);
+                        });
+                        searchResults.style.display = 'block';
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                        searchMoviesContainer.innerHTML = '<p>Error fetching data. Please try again later.</p>';
+                        searchResults.style.display = 'block';
+                    });
+            } else {
+                searchMoviesContainer.innerHTML = '<p>Please enter a search term.</p>';
+                searchResults.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
